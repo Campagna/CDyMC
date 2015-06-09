@@ -7,6 +7,6 @@
 #ifndef FUNCIONES_H_
 #define FUNCIONES_H_
 
-long map(int, int, int, int, int);
+long map(long , long , long , long , long );
 
 #endif /* FUNCIONES_H_ */

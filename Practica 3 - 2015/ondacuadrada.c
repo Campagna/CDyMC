@@ -14,3 +14,8 @@ void ONDACUADRADA_tpm1ch0_Handler(void)
 	TPM1C0V += NC;
 	TPM1C0SC_CH0F = 0;
 }
+
+void ONDACUADRADA_change_NC(int n)
+{
+	NC = n;
+}

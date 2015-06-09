@@ -1,0 +1,43 @@
+
+//Ejercicio No 5:  Generación y Medición de Señales Digitales 
+
+a) Se desea generar una onda cuadrada de frecuencia programable, entre 200 y 4000Hz, 
+	usando el módulo TPM2 CH0 (PTA1) y cuyo valor de frecuencia sea proporcional a una tensión analógica medida con el ADC. 
+b) Del mismo modo, se desea generar con el TPM2 CH1 (PTC1) una señal PWM cuyo ciclo de trabajo, 
+	entre 0 y 100%, sea proporcional al mismo valor de tensión medido con el ADC. 
+c) Como señal analógica se utilizará un potenciómetro resistivo conectado en el canal ADP2 (PTA2) del ADC. 
+	Es decir, que variando el potenciómetro se podrá variar la tensión en la entrada del conversor y así generar las señales deseadas. 
+d) Por último, se desea medir la frecuencia de la señal generada por TPM2 CH0 y mostrarla en pantalla de la PC cada 1 seg aproximadamente. 
+	Para esto, se conectará externamente la salida del CH0 TPM2 al CH0 TPM1(PTA0) configurado en modo “input capture” con el cual se medirá la frecuencia.  
+e) Para todos los periféricos, debe calcular el rango y la resolución de las magnitudes involucradas. 
+
+a) Para generar una onda cuadrada utilizaremos el dispositivo TPM2.
+	La frecuencia está dada por : FTPMclk = BUSclk/Prescaler; con BUSclk = 8 Mhz
+	El TPM genera una onda de diente de sierra, contando desde 0x00 hasta 0xFFFF.
+	La onda cuadrada tiene en un ciclo 2NC, establecemos su Periodo = 2NC * FTPMclk [seg]
+	Y su frecuencia es FTPMclk/2NC [Hz].NC es la duracion del semiperiodo y es lo que tenemos que "contar" dentro del TMP2
+	para que se genere una onda cuadrada de una frecuencia buscada. despejando obetenemos :
+	NC = FTPMclk/2*frecuencia.
+	No utilizaremos Prescaler.
+	nuestra frecuencia minima es 200 --> NCMIN = 8Mhz/2*200 =  20000
+	nuestra frecuencia maxima es 4000 --> NCMAX = 8Mhz/2*4000 = 1000
+	La resolucion de la frecuencia es = FTPMclk/2(NC^2) [Hz] 
+	RfMin  = 0,01 Hz
+	RfMax = 4 Hz
+	
+   Por otra parte utilizaremos el dispositivo ADC para convertir un valor analogico en uno digital.
+   	Tomaremos un valor de tension generado con un divisor de tension variable, desde 0V a 5V y lo discretizaremos en un rango de
+   	entre 0 a 255 (utilizando una resolucion de 8bits) o entre 0 y 1023 (utilizando una resolucion de 10bits).
+   	Podemos configurar el ADC para hacerlo funcionar en modo continuo, tambien puede configurarse por peticion, y cada vez que 
+   	el dispositivo completa la conversion nos informa poniendo en 1 el flag ADCSC1_COCO.
+   	La proporcion del rango de entrada analogica es lineal con respecto al rango de salida digital.
+   	Luego de cada conversion el valor se almacena en el registro ADCR.	
+   	
+   Para el PWM ( explicar que es PWM ) se encuentra en el canal 1 del TPM2. 
+   	el periodo está dado por el modulo, el prescaler y la señal de BUSclk, al igual que el TPM2.
+   	de hecho la salida de onda cuadrada y el PWM pertencen al mismo TPM.
+   El ciclo de trabajo varía entre 0% y 100%, como el registro comparador es de 16bits, varía entre 0 y 65535
+   
+   	
+   
+   	

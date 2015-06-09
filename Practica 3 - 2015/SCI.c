@@ -8,15 +8,14 @@
 #include "derivative.h" /* include peripheral declarations */
 
 
-void SCI_send_string(char* cadena)
+void SCI_send_string(char* pc)
 {
-	while(*cadena != '\0')
+	while (*pc != '\0')
 	{
-		while(SCIS1_TDRE == 0)
-		{
-			SCID = *cadena;
-			cadena++;
-		}
+		while(SCIS1_TDRE !=  1);
+		txChar = *pc;
+		SCIC2_TIE = 1;
+		pc++;
 	}
 }
 

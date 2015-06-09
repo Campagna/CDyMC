@@ -10,6 +10,9 @@
 #ifndef ONDACUADRADA_H_
 #define ONDACUADRADA_H_
 
-void ONDACUADRADA_tpm1ch0_Handler(void);
+#define NCMIN 20000
+#define NCMAX 1000
 
+void ONDACUADRADA_tpm1ch0_Handler(void);
+void ONDACUADRADA_change_NC(int n);
 #endif /* ONDACUADRADA_H_ */

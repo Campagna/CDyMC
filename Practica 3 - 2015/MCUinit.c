@@ -9,7 +9,7 @@
 **     Processor : MC9S08SH8CPJ
 **     Version   : Component 01.008, Driver 01.08, CPU db: 3.00.066
 **     Datasheet : MC9S08SH8 Rev. 3 6/2008
-**     Date/Time : 2015-06-05, 16:11, # CodeGen: 7
+**     Date/Time : 2015-06-09, 16:49, # CodeGen: 1
 **     Abstract  :
 **         This module contains device initialization code 
 **         for selected on-chip peripherals.
@@ -51,11 +51,8 @@ typedef unsigned long int uint32_t;
 
 /* User declarations and definitions */
 #include "ondacuadrada.h"
-
-volatile int contador_ciclos = 0;
-
-char txChar;
-char string_frecuencia = "0.0Hz";
+#include "SCI.h"
+#include "funciones.h"
 /*   Code, declarations and definitions here will be preserved during code generation */
 /* End of user declarations and definitions */
 
@@ -75,8 +72,6 @@ void MCU_init(void)
   /* Common initialization of the write once registers */
   /* SOPT1: COPT=0,STOPE=0,IICPS=0,BKGDPE=1,RSTPE=0 */
   SOPT1 = 0x02U;                                      
-  /* SOPT2: COPCLKS=0,COPW=0,ACIC=0,T1CH1PS=0,T1CH0PS=1 */
-  SOPT2 = 0x01U;                                      
   /* SPMSC1: LVWF=0,LVWACK=0,LVWIE=0,LVDRE=1,LVDSE=1,LVDE=1,BGBE=0 */
   SPMSC1 = 0x1CU;                                      
   /* SPMSC2: LVDV=0,LVWV=0,PPDF=0,PPDACK=0,PPDC=0 */
@@ -88,8 +83,8 @@ void MCU_init(void)
     ICSSC = *(unsigned char*far)0xFFAEU; /* Initialize ICSSC register from a non volatile memory */
   }
   /*lint -restore Enable MISRA rule (11.3) checking. */
-  /* ICSC1: CLKS=0,RDIV=0,IREFS=1,IRCLKEN=1,IREFSTEN=0 */
-  ICSC1 = 0x06U;                       /* Initialization of the ICS control register 1 */
+  /* ICSC1: CLKS=0,RDIV=0,IREFS=1,IRCLKEN=0,IREFSTEN=0 */
+  ICSC1 = 0x04U;                       /* Initialization of the ICS control register 1 */
   /* ICSC2: BDIV=1,RANGE=0,HGO=0,LP=0,EREFS=0,ERCLKEN=0,EREFSTEN=0 */
   ICSC2 = 0x40U;                       /* Initialization of the ICS control register 2 */
   while(ICSSC_IREFST == 0U) {          /* Wait until the source of reference clock is internal clock */
@@ -97,8 +92,10 @@ void MCU_init(void)
   /* GNGC: GNGPS7=0,GNGPS6=0,GNGPS5=0,GNGPS4=0,GNGPS3=0,GNGPS2=0,GNGPS1=0,GNGEN=0 */
   GNGC = 0x00U;                                      
   /* Common initialization of the CPU registers */
-  /* PTCPE: PTCPE0=0 */
-  PTCPE &= (unsigned char)~(unsigned char)0x01U;                     
+  /* PTAPE: PTAPE1=0 */
+  PTAPE &= (unsigned char)~(unsigned char)0x02U;                     
+  /* PTBPE: PTBPE4=0 */
+  PTBPE &= (unsigned char)~(unsigned char)0x10U;                     
   /* PTASE: PTASE4=0,PTASE3=0,PTASE2=0,PTASE1=0,PTASE0=0 */
   PTASE &= (unsigned char)~(unsigned char)0x1FU;                     
   /* PTBSE: PTBSE7=0,PTBSE6=0,PTBSE5=0,PTBSE4=0,PTBSE3=0,PTBSE2=0,PTBSE1=0,PTBSE0=0 */
@@ -112,38 +109,20 @@ void MCU_init(void)
   /* PTCDS: PTCDS3=0,PTCDS2=0,PTCDS1=0,PTCDS0=0 */
   PTCDS = 0x00U;                                      
   /* ### Init_TPM init code */
-  (void)(TPM1C0SC == 0U);              /* Channel 0 int. flag clearing (first part) */
-  /* TPM1C0SC: CH0F=0,CH0IE=1,MS0B=0,MS0A=1,ELS0B=0,ELS0A=1 */
-  TPM1C0SC = 0x54U;                    /* Int. flag clearing (2nd part) and channel 0 contr. register setting */
-  TPM1C0V = 0x00U;                     /* Compare 0 value setting */
-  /* TPM1SC: TOF=0,TOIE=0,CPWMS=0,CLKSB=0,CLKSA=0,PS2=0,PS1=0,PS0=0 */
-  TPM1SC = 0x00U;                      /* Stop and reset counter */
-  TPM1MOD = 0x00U;                     /* Period value setting */
-  (void)(TPM1SC == 0U);                /* Overflow int. flag clearing (first part) */
-  /* TPM1SC: TOF=0,TOIE=0,CPWMS=0,CLKSB=0,CLKSA=1,PS2=0,PS1=0,PS0=0 */
-  TPM1SC = 0x08U;                      /* Int. flag clearing (2nd part) and timer control register setting */
-  /* ### Init_SCI init code */
-  /* SCIC2: TIE=0,TCIE=0,RIE=0,ILIE=0,TE=0,RE=0,RWU=0,SBK=0 */
-  SCIC2 = 0x00U;                       /* Disable the SCI module */
-  (void)(SCIS1 == 0U);                 /* Dummy read of the SCIS1 register to clear flags */
-  (void)(SCID == 0U);                  /* Dummy read of the SCID register to clear flags */
-  /* SCIS2: LBKDIF=1,RXEDGIF=1,RXINV=0,RWUID=0,BRK13=0,LBKDE=0,RAF=0 */
-  SCIS2 = 0xC0U;                                      
-  /* SCIBDH: LBKDIE=0,RXEDGIE=0,SBR12=0,SBR11=0,SBR10=0,SBR9=0,SBR8=0 */
-  SCIBDH = 0x00U;                                      
-  /* SCIBDL: SBR7=0,SBR6=0,SBR5=1,SBR4=1,SBR3=0,SBR2=1,SBR1=0,SBR0=0 */
-  SCIBDL = 0x34U;                                      
-  /* SCIC1: LOOPS=0,SCISWAI=0,RSRC=0,M=0,WAKE=0,ILT=0,PE=0,PT=0 */
-  SCIC1 = 0x00U;                                      
-  /* SCIC3: R8=0,T8=0,TXDIR=0,TXINV=0,ORIE=0,NEIE=0,FEIE=0,PEIE=0 */
-  SCIC3 = 0x00U;                                      
-  /* SCIC2: TIE=0,TCIE=0,RIE=0,ILIE=0,TE=1,RE=0,RWU=0,SBK=0 */
-  SCIC2 = 0x08U;                                      
-  /* ### Init_RTC init code */
-  /* RTCMOD: RTCMOD=0 */
-  RTCMOD = 0x00U;                      /* Set modulo register */
-  /* RTCSC: RTIF=1,RTCLKS=2,RTIE=1,RTCPS=2 */
-  RTCSC = 0xD2U;                       /* Configure RTC */
+  (void)(TPM2C0SC == 0U);              /* Channel 0 int. flag clearing (first part) */
+  /* TPM2C0SC: CH0F=0,CH0IE=1,MS0B=0,MS0A=1,ELS0B=0,ELS0A=1 */
+  TPM2C0SC = 0x54U;                    /* Int. flag clearing (2nd part) and channel 0 contr. register setting */
+  TPM2C0V = 0x00U;                     /* Compare 0 value setting */
+  (void)(TPM2C1SC == 0U);              /* Channel 1 int. flag clearing (first part) */
+  /* TPM2C1SC: CH1F=0,CH1IE=1,MS1B=1,MS1A=0,ELS1B=0,ELS1A=1 */
+  TPM2C1SC = 0x64U;                    /* Int. flag clearing (2nd part) and channel 1 contr. register setting */
+  TPM2C1V = 0x00U;                     /* Compare 1 value setting */
+  /* TPM2SC: TOF=0,TOIE=0,CPWMS=0,CLKSB=0,CLKSA=0,PS2=0,PS1=0,PS0=0 */
+  TPM2SC = 0x00U;                      /* Stop and reset counter */
+  TPM2MOD = 0x00U;                     /* Period value setting */
+  (void)(TPM2SC == 0U);                /* Overflow int. flag clearing (first part) */
+  /* TPM2SC: TOF=0,TOIE=0,CPWMS=0,CLKSB=0,CLKSA=1,PS2=0,PS1=0,PS0=0 */
+  TPM2SC = 0x08U;                      /* Int. flag clearing (2nd part) and timer control register setting */
   /* ### */
   /*lint -save  -e950 Disable MISRA rule (1.1) checking. */
   asm CLI;                             /* Enable interrupts */
@@ -153,86 +132,6 @@ void MCU_init(void)
 
 
 /*lint -save  -e765 Disable MISRA rule (8.10) checking. */
-/*
-** ===================================================================
-**     Interrupt handler : isrVrtc
-**
-**     Description :
-**         User interrupt service routine. 
-**     Parameters  : None
-**     Returns     : Nothing
-** ===================================================================
-*/
-__interrupt void isrVrtc(void)
-{
-	contador++;
-	if(contador == 1000)
-	{
-		contador = 0;
-		mostrarFrecuencia(string_frecuencia);
-	}
-
-}
-/* end of isrVrtc */
-
-
-/*
-** ===================================================================
-**     Interrupt handler : isrVscitx
-**
-**     Description :
-**         User interrupt service routine. 
-**     Parameters  : None
-**     Returns     : Nothing
-** ===================================================================
-*/
-__interrupt void isrVscitx(void)
-{
-	if (SCIS1_TDRE == 1){
-		SCID = txChar;
-	}
-	SCIC2_TIE = 0;
-
-}
-/* end of isrVscitx */
-
-
-/*
-** ===================================================================
-**     Interrupt handler : isrVscirx
-**
-**     Description :
-**         User interrupt service routine. 
-**     Parameters  : None
-**     Returns     : Nothing
-** ===================================================================
-*/
-__interrupt void isrVscirx(void)
-{
-  /* Write your interrupt code here ... */
-
-}
-/* end of isrVscirx */
-
-
-/*
-** ===================================================================
-**     Interrupt handler : isrVscierr
-**
-**     Description :
-**         User interrupt service routine. 
-**     Parameters  : None
-**     Returns     : Nothing
-** ===================================================================
-*/
-__interrupt void isrVscierr(void)
-{
-  /* Write your interrupt code here ... */
-
-}
-/* end of isrVscierr */
-
-
 /*
 ** ===================================================================
 **     Interrupt handler : isrVtpm1ovf
@@ -253,7 +152,7 @@ __interrupt void isrVtpm1ovf(void)
 
 /*
 ** ===================================================================
-**     Interrupt handler : isrVtpm1ch0
+**     Interrupt handler : isrVtpm2ch1
 **
 **     Description :
 **         User interrupt service routine. 
@@ -261,12 +160,30 @@ __interrupt void isrVtpm1ovf(void)
 **     Returns     : Nothing
 ** ===================================================================
 */
-__interrupt void isrVtpm1ch0(void)
+__interrupt void isrVtpm2ch1(void)
+{
+  /* Write your interrupt code here ... */
+
+}
+/* end of isrVtpm2ch1 */
+
+
+/*
+** ===================================================================
+**     Interrupt handler : isrVtpm2ch0
+**
+**     Description :
+**         User interrupt service routine. 
+**     Parameters  : None
+**     Returns     : Nothing
+** ===================================================================
+*/
+__interrupt void isrVtpm2ch0(void)
 {
   /* Write your interrupt code here ... */
 	ONDACUADRADA_tpm1ch0_Handler();
 }
-/* end of isrVtpm1ch0 */
+/* end of isrVtpm2ch0 */
 
 
 /*lint -restore Enable MISRA rule (8.10) checking. */
@@ -298,27 +215,27 @@ static void (* near const _vect[])(void) @0xFFC0 = { /* Interrupt vector table *
          UNASSIGNED_ISR,               /* Int.no. 28 VReserved28 (at FFC6)           Unassigned */
          UNASSIGNED_ISR,               /* Int.no. 27 VReserved27 (at FFC8)           Unassigned */
          UNASSIGNED_ISR,               /* Int.no. 26 Vmtim (at FFCA)                 Unassigned */
-         isrVrtc,                      /* Int.no. 25 Vrtc (at FFCC)                  Used */
+         UNASSIGNED_ISR,               /* Int.no. 25 Vrtc (at FFCC)                  Unassigned */
          UNASSIGNED_ISR,               /* Int.no. 24 Viic (at FFCE)                  Unassigned */
          UNASSIGNED_ISR,               /* Int.no. 23 Vadc (at FFD0)                  Unassigned */
          UNASSIGNED_ISR,               /* Int.no. 22 VReserved22 (at FFD2)           Unassigned */
          UNASSIGNED_ISR,               /* Int.no. 21 Vportb (at FFD4)                Unassigned */
          UNASSIGNED_ISR,               /* Int.no. 20 Vporta (at FFD6)                Unassigned */
          UNASSIGNED_ISR,               /* Int.no. 19 VReserved19 (at FFD8)           Unassigned */
-         isrVscitx,                    /* Int.no. 18 Vscitx (at FFDA)                Used */
-         isrVscirx,                    /* Int.no. 17 Vscirx (at FFDC)                Used */
-         isrVscierr,                   /* Int.no. 16 Vscierr (at FFDE)               Used */
+         UNASSIGNED_ISR,               /* Int.no. 18 Vscitx (at FFDA)                Unassigned */
+         UNASSIGNED_ISR,               /* Int.no. 17 Vscirx (at FFDC)                Unassigned */
+         UNASSIGNED_ISR,               /* Int.no. 16 Vscierr (at FFDE)               Unassigned */
          UNASSIGNED_ISR,               /* Int.no. 15 Vspi (at FFE0)                  Unassigned */
-         UNASSIGNED_ISR,               /* Int.no. 14 Vtpm2ovf (at FFE2)              Unassigned */
-         UNASSIGNED_ISR,               /* Int.no. 13 Vtpm2ch1 (at FFE4)              Unassigned */
-         UNASSIGNED_ISR,               /* Int.no. 12 Vtpm2ch0 (at FFE6)              Unassigned */
-         isrVtpm1ovf,                  /* Int.no. 11 Vtpm1ovf (at FFE8)              Used */
+         isrVtpm1ovf,                  /* Int.no. 14 Vtpm2ovf (at FFE2)              Used */
+         isrVtpm2ch1,                  /* Int.no. 13 Vtpm2ch1 (at FFE4)              Used */
+         isrVtpm2ch0,                  /* Int.no. 12 Vtpm2ch0 (at FFE6)              Used */
+         UNASSIGNED_ISR,               /* Int.no. 11 Vtpm1ovf (at FFE8)              Unassigned */
          UNASSIGNED_ISR,               /* Int.no. 10 VReserved10 (at FFEA)           Unassigned */
          UNASSIGNED_ISR,               /* Int.no.  9 VReserved9 (at FFEC)            Unassigned */
          UNASSIGNED_ISR,               /* Int.no.  8 VReserved8 (at FFEE)            Unassigned */
          UNASSIGNED_ISR,               /* Int.no.  7 VReserved7 (at FFF0)            Unassigned */
          UNASSIGNED_ISR,               /* Int.no.  6 Vtpm1ch1 (at FFF2)              Unassigned */
-         isrVtpm1ch0,                  /* Int.no.  5 Vtpm1ch0 (at FFF4)              Used */
+         UNASSIGNED_ISR,               /* Int.no.  5 Vtpm1ch0 (at FFF4)              Unassigned */
          UNASSIGNED_ISR,               /* Int.no.  4 VReserved4 (at FFF6)            Unassigned */
          UNASSIGNED_ISR,               /* Int.no.  3 Vlvd (at FFF8)                  Unassigned */
          UNASSIGNED_ISR,               /* Int.no.  2 Virq (at FFFA)                  Unassigned */
