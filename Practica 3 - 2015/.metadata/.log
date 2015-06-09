@@ -1,0 +1,12 @@
+!SESSION 2015-06-09 12:28:32.259 -----------------------------------------------
+eclipse.buildId=I20070613-1755
+java.version=1.6.0_15
+java.vendor=Sun Microsystems Inc.
+BootLoader constants: OS=win32, ARCH=x86, WS=win32, NL=es_AR
+Command-line arguments:  -os win32 -ws win32 -arch x86 -data C:/Users/Cristian/Documents/GitHub/CDyMC
+
+!ENTRY org.eclipse.osgi 2 1 2015-06-09 12:28:42.651
+!MESSAGE NLS unused message: MergeHostsDialog_RSESettings in: com.freescale.core.ide.rseSettingsCache.internal.messages
+
+!ENTRY org.eclipse.osgi 2 1 2015-06-09 12:28:42.651
+!MESSAGE NLS missing message: CreateNewHostDialog_3 in: com.freescale.core.ide.rseSettingsCache.internal.messages
