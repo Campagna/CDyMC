@@ -7,6 +7,7 @@
 #include "SCI.h"
 #include "derivative.h" /* include peripheral declarations */
 
+extern char txChar;
 
 void SCI_send_string(char* pc)
 {

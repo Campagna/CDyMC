@@ -9,7 +9,7 @@
 **     Processor : MC9S08SH8CPJ
 **     Version   : Component 01.008, Driver 01.08, CPU db: 3.00.066
 **     Datasheet : MC9S08SH8 Rev. 3 6/2008
-**     Date/Time : 2015-06-09, 16:49, # CodeGen: 1
+**     Date/Time : 2015-06-12, 16:59, # CodeGen: 1
 **     Abstract  :
 **         This module contains device initialization code 
 **         for selected on-chip peripherals.
@@ -53,6 +53,7 @@ typedef unsigned long int uint32_t;
 #include "ondacuadrada.h"
 #include "SCI.h"
 #include "funciones.h"
+#include "PWM.h"
 /*   Code, declarations and definitions here will be preserved during code generation */
 /* End of user declarations and definitions */
 
@@ -108,6 +109,39 @@ void MCU_init(void)
   PTBDS = 0x00U;                                      
   /* PTCDS: PTCDS3=0,PTCDS2=0,PTCDS1=0,PTCDS0=0 */
   PTCDS = 0x00U;                                      
+  /* ### Init_RTC init code */
+  /* RTCMOD: RTCMOD=0 */
+  RTCMOD = 0x00U;                      /* Set modulo register */
+  /* RTCSC: RTIF=1,RTCLKS=2,RTIE=0,RTCPS=2 */
+  RTCSC = 0xC2U;                       /* Configure RTC */
+  /* ### Init_SCI init code */
+  /* SCIC2: TIE=0,TCIE=0,RIE=0,ILIE=0,TE=0,RE=0,RWU=0,SBK=0 */
+  SCIC2 = 0x00U;                       /* Disable the SCI module */
+  (void)(SCIS1 == 0U);                 /* Dummy read of the SCIS1 register to clear flags */
+  (void)(SCID == 0U);                  /* Dummy read of the SCID register to clear flags */
+  /* SCIS2: LBKDIF=1,RXEDGIF=1,RXINV=0,RWUID=0,BRK13=0,LBKDE=0,RAF=0 */
+  SCIS2 = 0xC0U;                                      
+  /* SCIBDH: LBKDIE=0,RXEDGIE=0,SBR12=0,SBR11=0,SBR10=0,SBR9=0,SBR8=0 */
+  SCIBDH = 0x00U;                                      
+  /* SCIBDL: SBR7=0,SBR6=0,SBR5=1,SBR4=1,SBR3=0,SBR2=1,SBR1=0,SBR0=0 */
+  SCIBDL = 0x34U;                                      
+  /* SCIC1: LOOPS=0,SCISWAI=0,RSRC=0,M=0,WAKE=0,ILT=0,PE=0,PT=0 */
+  SCIC1 = 0x00U;                                      
+  /* SCIC3: R8=0,T8=0,TXDIR=0,TXINV=0,ORIE=0,NEIE=0,FEIE=0,PEIE=0 */
+  SCIC3 = 0x00U;                                      
+  /* SCIC2: TIE=0,TCIE=0,RIE=0,ILIE=0,TE=1,RE=0,RWU=0,SBK=0 */
+  SCIC2 = 0x08U;                                      
+  /* ### Init_ADC init code */
+  /* APCTL1: ADPC7=0,ADPC6=0,ADPC5=0,ADPC4=0,ADPC3=0,ADPC2=0,ADPC1=0,ADPC0=0 */
+  APCTL1 = 0x00U;                                      
+  /* ADCCFG: ADLPC=0,ADIV1=1,ADIV0=1,ADLSMP=0,MODE1=0,MODE0=0,ADICLK1=0,ADICLK0=1 */
+  ADCCFG = 0x61U;                                      
+  /* ADCCV: ADCV9=0,ADCV8=0,ADCV7=0,ADCV6=0,ADCV5=0,ADCV4=0,ADCV3=0,ADCV2=0,ADCV1=0,ADCV0=0 */
+  ADCCV = 0x00U;                            
+  /* ADCSC2: ADACT=0,ADTRG=0,ACFE=0,ACFGT=0 */
+  ADCSC2 = 0x00U;                                      
+  /* ADCSC1: COCO=0,AIEN=0,ADCO=1,ADCH4=0,ADCH3=0,ADCH2=0,ADCH1=1,ADCH0=0 */
+  ADCSC1 = 0x22U;                                      
   /* ### Init_TPM init code */
   (void)(TPM2C0SC == 0U);              /* Channel 0 int. flag clearing (first part) */
   /* TPM2C0SC: CH0F=0,CH0IE=1,MS0B=0,MS0A=1,ELS0B=0,ELS0A=1 */
@@ -132,6 +166,96 @@ void MCU_init(void)
 
 
 /*lint -save  -e765 Disable MISRA rule (8.10) checking. */
+/*
+** ===================================================================
+**     Interrupt handler : isrVrtc
+**
+**     Description :
+**         User interrupt service routine. 
+**     Parameters  : None
+**     Returns     : Nothing
+** ===================================================================
+*/
+__interrupt void isrVrtc(void)
+{
+  /* Write your interrupt code here ... */
+
+}
+/* end of isrVrtc */
+
+
+/*
+** ===================================================================
+**     Interrupt handler : isrVadc
+**
+**     Description :
+**         User interrupt service routine. 
+**     Parameters  : None
+**     Returns     : Nothing
+** ===================================================================
+*/
+__interrupt void isrVadc(void)
+{
+  /* Write your interrupt code here ... */
+
+}
+/* end of isrVadc */
+
+
+/*
+** ===================================================================
+**     Interrupt handler : isrVscitx
+**
+**     Description :
+**         User interrupt service routine. 
+**     Parameters  : None
+**     Returns     : Nothing
+** ===================================================================
+*/
+__interrupt void isrVscitx(void)
+{
+  /* Write your interrupt code here ... */
+
+}
+/* end of isrVscitx */
+
+
+/*
+** ===================================================================
+**     Interrupt handler : isrVscirx
+**
+**     Description :
+**         User interrupt service routine. 
+**     Parameters  : None
+**     Returns     : Nothing
+** ===================================================================
+*/
+__interrupt void isrVscirx(void)
+{
+  /* Write your interrupt code here ... */
+
+}
+/* end of isrVscirx */
+
+
+/*
+** ===================================================================
+**     Interrupt handler : isrVscierr
+**
+**     Description :
+**         User interrupt service routine. 
+**     Parameters  : None
+**     Returns     : Nothing
+** ===================================================================
+*/
+__interrupt void isrVscierr(void)
+{
+  /* Write your interrupt code here ... */
+
+}
+/* end of isrVscierr */
+
+
 /*
 ** ===================================================================
 **     Interrupt handler : isrVtpm1ovf
@@ -215,16 +339,16 @@ static void (* near const _vect[])(void) @0xFFC0 = { /* Interrupt vector table *
          UNASSIGNED_ISR,               /* Int.no. 28 VReserved28 (at FFC6)           Unassigned */
          UNASSIGNED_ISR,               /* Int.no. 27 VReserved27 (at FFC8)           Unassigned */
          UNASSIGNED_ISR,               /* Int.no. 26 Vmtim (at FFCA)                 Unassigned */
-         UNASSIGNED_ISR,               /* Int.no. 25 Vrtc (at FFCC)                  Unassigned */
+         isrVrtc,                      /* Int.no. 25 Vrtc (at FFCC)                  Used */
          UNASSIGNED_ISR,               /* Int.no. 24 Viic (at FFCE)                  Unassigned */
-         UNASSIGNED_ISR,               /* Int.no. 23 Vadc (at FFD0)                  Unassigned */
+         isrVadc,                      /* Int.no. 23 Vadc (at FFD0)                  Used */
          UNASSIGNED_ISR,               /* Int.no. 22 VReserved22 (at FFD2)           Unassigned */
          UNASSIGNED_ISR,               /* Int.no. 21 Vportb (at FFD4)                Unassigned */
          UNASSIGNED_ISR,               /* Int.no. 20 Vporta (at FFD6)                Unassigned */
          UNASSIGNED_ISR,               /* Int.no. 19 VReserved19 (at FFD8)           Unassigned */
-         UNASSIGNED_ISR,               /* Int.no. 18 Vscitx (at FFDA)                Unassigned */
-         UNASSIGNED_ISR,               /* Int.no. 17 Vscirx (at FFDC)                Unassigned */
-         UNASSIGNED_ISR,               /* Int.no. 16 Vscierr (at FFDE)               Unassigned */
+         isrVscitx,                    /* Int.no. 18 Vscitx (at FFDA)                Used */
+         isrVscirx,                    /* Int.no. 17 Vscirx (at FFDC)                Used */
+         isrVscierr,                   /* Int.no. 16 Vscierr (at FFDE)               Used */
          UNASSIGNED_ISR,               /* Int.no. 15 Vspi (at FFE0)                  Unassigned */
          isrVtpm1ovf,                  /* Int.no. 14 Vtpm2ovf (at FFE2)              Used */
          isrVtpm2ch1,                  /* Int.no. 13 Vtpm2ch1 (at FFE4)              Used */

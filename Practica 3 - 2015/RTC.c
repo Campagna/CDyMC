@@ -6,8 +6,10 @@
  */
 
 #include "RTC.h"
+#include "derivative.h"
+
 
 void RTC_init(void)
 {
-	RTCSC_RTIE = 1 ;
+	RTCSC_RTIE = 1;
 }

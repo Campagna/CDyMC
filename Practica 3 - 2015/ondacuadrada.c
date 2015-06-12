@@ -6,8 +6,10 @@
  */
 
 #include "ondacuadrada.h" 
+#include "derivative.h"
 
-#define NC 9090
+
+int NC = 0;
 
 void ONDACUADRADA_tpm1ch0_Handler(void)
 {

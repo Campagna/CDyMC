@@ -8,7 +8,7 @@
 **     Processor : MC9S08SH8CPJ
 **     Version   : Component 01.008, Driver 01.08, CPU db: 3.00.066
 **     Datasheet : MC9S08SH8 Rev. 3 6/2008
-**     Date/Time : 2015-06-09, 16:49, # CodeGen: 1
+**     Date/Time : 2015-06-12, 16:59, # CodeGen: 1
 **     Abstract  :
 **         This module contains device initialization code 
 **         for selected on-chip peripherals.
@@ -51,6 +51,76 @@ extern void MCU_init(void);
 
 
 /*lint -save  -e765 Disable MISRA rule (8.10) checking. */
+__interrupt void isrVrtc(void);
+/*
+** ===================================================================
+**     Interrupt handler : isrVrtc
+**
+**     Description :
+**         User interrupt service routine. 
+**     Parameters  : None
+**     Returns     : Nothing
+** ===================================================================
+*/
+
+
+
+__interrupt void isrVadc(void);
+/*
+** ===================================================================
+**     Interrupt handler : isrVadc
+**
+**     Description :
+**         User interrupt service routine. 
+**     Parameters  : None
+**     Returns     : Nothing
+** ===================================================================
+*/
+
+
+
+__interrupt void isrVscitx(void);
+/*
+** ===================================================================
+**     Interrupt handler : isrVscitx
+**
+**     Description :
+**         User interrupt service routine. 
+**     Parameters  : None
+**     Returns     : Nothing
+** ===================================================================
+*/
+
+
+
+__interrupt void isrVscirx(void);
+/*
+** ===================================================================
+**     Interrupt handler : isrVscirx
+**
+**     Description :
+**         User interrupt service routine. 
+**     Parameters  : None
+**     Returns     : Nothing
+** ===================================================================
+*/
+
+
+
+__interrupt void isrVscierr(void);
+/*
+** ===================================================================
+**     Interrupt handler : isrVscierr
+**
+**     Description :
+**         User interrupt service routine. 
+**     Parameters  : None
+**     Returns     : Nothing
+** ===================================================================
+*/
+
+
+
 __interrupt void isrVtpm1ovf(void);
 /*
 ** ===================================================================
